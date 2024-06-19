@@ -1,0 +1,14 @@
+? Superscript is a language for automating anything, the fun way.
+? Let's see an example program for editing my NixOS config.
+
+
+? Import integrations
+use [choose, input] from local:gum
+use [run] from github:sspkgs/bash
+
+
+run("cd ~/nixos")
+var file is choose(run("ls ~/nixos"))
+run("nvim " | file )
+? The | is glue. It's like concatenation.
+run("sudo --stdin" | input("--password") | ")
