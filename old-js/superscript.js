@@ -7,6 +7,7 @@ const readFile = location => new Promise((resolve, reject) =>
         })
     )
 
+
 const writeFile = (location, data) => new Promise((resolve, reject) => 
     fs.writeFile(location,data, err => {
         if (err) return reject(err)
