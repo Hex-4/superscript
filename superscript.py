@@ -1,25 +1,22 @@
 import sys
 import asyncio
-async def read_file(location):
-    try:
-        with open(location, "r") as f:
-            return f.read()
-    except FileNotFoundError:
-        print("File not found.")
-        return ""
+import argparse
 
-async def main():
-    args = sys.argv
-    args.pop(0)
-    if "--debug" in args:
-        debug = True
-        print("Debug mode on. GLHF!")
-    location = args[0]
-    if location:
-        program = await read_file(location)
-        print(program)
-    else:
-        # Response mode
-        pass
+parser = argparse.ArgumentParser(prog="superscript", description="Program anything, the fun way.")
+parser.add_argument("file", type=str, help="What file should we run?", nargs="?", default=None)
+parser.add_argument("--debug", help="Get more information", action="store_true")
+args = parser.parse_args()
 
-asyncio.run(main())
+
+
+
+if args.debug:
+    debug = True
+    print("Debug mode on. GLHF!")
+
+
+
+if args.file:
+    with open(args.file, "r") as file:
+        text = file.read()
+    print(text)

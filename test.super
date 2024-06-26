@@ -3,11 +3,14 @@
 
 ? Since this is meant to be installed to the system, we need to expose shortcuts
 expose [iterate]
+? This is also the shortcut that runs when you run via CLI
 
 ? Import integrations
 use [choose, input] from local:gum
 use [run] from github:sspkgs/bash
 
+
+? To run, use 
 
 define iterate as {
     run("cd ~/nixos")
@@ -24,13 +27,20 @@ define groceries as {
     var selected is choose(["apples", "lettuce", "rice", "tacos" "bananas", "tomatoes"])
     var acc is "Person"
     loop over selected {
-        if selected = "tacos" {
+        ? current references the item bing iterated over
+        if current = "tacos" {
             print("taco tuesday!")
         }
         var barcode is run("costco search " ++ selected ++ "--script")
         ? These are just examples, there is no costco cli :(
         run("costco buy " ++ barcode)
     }
+}
+
+? You can also loop x number of times:
+
+loop 4 {
+    ? ...
 }
 
 ? Here's everything else Superscript can do:
