@@ -14,7 +14,7 @@ use [run] from github:sspkgs/bash
 
 define iterate as {
     run("cd ~/nixos")
-    var file is choose(run("ls ~/nixos"))
+    file is choose(run("ls ~/nixos"))
     run("nvim " ++ file )
     ? The ++ is glue. It's like concatenation.
     run("sudo --stdin" ++ input("--password") ++ "sudo nixos-rebuild switch --flake /home/hexatron/nixos#default")
@@ -24,14 +24,14 @@ define iterate as {
 ? Let's order some groceries!
 
 define groceries as {
-    var selected is choose(["apples", "lettuce", "rice", "tacos" "bananas", "tomatoes"])
-    var acc is "Person"
+    selected is choose(["apples", "lettuce", "rice", "tacos" "bananas", "tomatoes"])
+    acc is "Person"
     loop over selected {
         ? current references the item bing iterated over
         if current = "tacos" {
             print("taco tuesday!")
         }
-        var barcode is run("costco search " ++ selected ++ "--script")
+        barcode is run("costco search " ++ selected ++ "--script")
         ? These are just examples, there is no costco cli :(
         run("costco buy " ++ barcode)
     }
@@ -55,8 +55,8 @@ define multiply takes [a, b] as {
 ? This is how integrations work.
 
 define calc as {
-    var x is input()
-    var y is input()
+    x is input()
+    y is input()
     call multiply with [x,y]
 }
 
