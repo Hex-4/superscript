@@ -1,4 +1,4 @@
- ? Superscript is a language for automating anything, the fun way.
+? Superscript is a language for automating anything, the fun way.
 ? Let's see an example program for editing my NixOS config.
 
 ? Since this is meant to be installed to the system, we need to expose shortcuts
