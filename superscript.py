@@ -10,7 +10,7 @@ parser.add_argument("--debug", help="Get more information", action="store_true")
 args = parser.parse_args()
 
 
-
+debug = False
 
 if args.debug:
     debug = True
@@ -18,8 +18,8 @@ if args.debug:
 
 
 
-if args.file:
-    with open(args.file, "r") as file:
+if True:
+    with open("test.super", "r") as file:
         text = file.read()
     lexer = Lexer(text)
     try:

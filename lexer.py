@@ -47,7 +47,7 @@ KEYWORDS = {
 }
 
 class Token:
-    def __init__(kind, value, content, line, column):
+    def __init__(self,kind, value, content, line, column):
         self.type = kind # From TOKENS
         self.value = value
         self.content = content
@@ -81,7 +81,7 @@ class Lexer:
         return self.program[self.current]
 
     def advance(self):
-        if self.current >= len(self.program):
+        if self.current >= len(self.program)-1:
             return "\0"
         self.current += 1
         self.column += 1
@@ -95,7 +95,7 @@ class Lexer:
         return False
 
     def isChar(self, char):
-        return (char >= "a" and char <= "z") or (char >= "A" and char <= "Z") or (char == "_")
+        return ((char >= "a" and char <= "z") or (char >= "A" and char <= "Z") or (char == "_")) and char != " "
 
     def isNumber(self, char):
         return char >= "0" and char <= "9"
@@ -104,6 +104,8 @@ class Lexer:
         return self.isChar(char) or self.isNumber(char)
 
     def scanToken(self):
+        print(len(self.tokens))
+        print(self.tokens)
         char = self.advance()
         match char:
             case "(":
@@ -152,8 +154,11 @@ class Lexer:
                 self.tokens.append(Token(TOKENS["Equal"], char, char, self.line, self.column))
             
             case "?":
-                while self.peek != "\n" and self.peek != "\0":
+                while self.peek() != "\n" and self.peek() != "\0":
                     self.advance()
+
+                self.line += 1
+                self.column = 0
 
             case " ":
                 pass
@@ -172,7 +177,7 @@ class Lexer:
                     if self.peek == "\0":
                         self.error("I couldn't find a matching end quote. Check your code to see if you missed one.")
                 self.advance()
-                string = string.join("")
+                string = "".join(string)
                 return self.tokens.append(Token(TOKENS["String"], string, string, self.line, self.column))
             case "\n":
                 self.line += 1
@@ -183,18 +188,18 @@ class Lexer:
                     while (self.isNumber(self.peek)) or (self.peek == "." and not "." in number):
                         number.append(self.advance())
 
-                    number = number.join("")
+                    number = "".join(number)
                     return self.tokens.append(Token(TOKENS["Number"], number, float(number), self.line, self.column))
                 elif self.isChar(char):
                     identifier = [char]
                     while self.isAlphanumeric(self.peek()):
                         identifier.append(self.advance())
-
-                    identifier = identifier.join("")
+                    identifier.pop()
+                    identifier = "".join(identifier)
                     if identifier in KEYWORDS:
                         return self.tokens.append(Token(TOKENS["Keyword"], identifier, KEYWORDS[identifier], self.line, self.column))
                     elif identifier == "true" or identifier == "false":
-                        return self.tokens.append(Token(TOKENS["Boolean"], identifier, identifier == "true", self.line, self.column))
+                        return self.tokens.append(Token(TOKENS["Keyword"], identifier, identifier == "true", self.line, self.column))
                     else:
                         return self.tokens.append(Token(TOKENS["Identifier"], identifier, identifier, self.line, self.column))
                 
