@@ -1,16 +1,14 @@
 [tool.poetry]
-name = "sample-project"
-version = "0.1.0"
-description = ""
-authors = ["Author Name <author@example.com>"]
-# readme = "README.md"
-# license = "BSD"
-packages = [
-  { include = "sample_package" }
-]
+name = "superscript"
+version = "0.0.1"
+description = "Shortcuts for anything, the fun way"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
+rich = "^13.7.1"
+
 
 [build-system]
 requires = ["poetry-core"]

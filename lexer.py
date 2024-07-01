@@ -1,5 +1,7 @@
 from stdlib import SuperError
 
+
+
 TOKEN_KINDS = {
     "LeftParen": "LeftParen",
     "RightParen": "RightParen",
@@ -58,4 +60,6 @@ class Lexer:
         self.col = 0
 
     def error(self, msg):
-        raise SuperError(f"")
+        msg = str(self.line) + "|" + str(self.col) + "|" + msg
+        raise SuperError(msg)
+
