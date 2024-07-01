@@ -10,8 +10,6 @@ use [choose, input] from local:gum
 use [run] from github:sspkgs/bash
 
 
-? To run, use 
-
 define iterate as {
     run("cd ~/nixos")
     file is choose(run("ls ~/nixos"))

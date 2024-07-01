@@ -56,3 +56,6 @@ class Lexer:
         self.line = 1
         self.current = 0
         self.col = 0
+
+    def error(self, msg):
+        raise SuperError(f"")
