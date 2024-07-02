@@ -30,8 +30,10 @@ if True:
         tokens = lexer.scanTokens()
     
     except SuperError as e:
-        
-        console.print(Panel.fit(f"Whoops! During lexing I found an error on [green][i][b]line 1[blue], column 3:\n[red][not i]Tried to cook pizza in toaster.     ", title="[red]:warning-emoji: [bold]ERROR" ))
+        line = str(e).split("|")[0]
+        col = str(e).split("|")[1]
+        msg = str(e).split("|")[2]
+        console.print(Panel.fit(f"Whoops! During lexing I found an error on [green][i][b]line {line}[blue], column {col}:\n[red][not i]{msg}     ", title="[red]:warning-emoji: [bold]ERROR" ))
         sys.exit(1)
     finally:
         if debug:
