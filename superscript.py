@@ -25,6 +25,8 @@ if args.debug:
 if True:
     with open("test.super", "r") as file:
         text = file.read()
+    
+    text = "\n" + " " + text  
     lexer = Lexer(text)
     try:
         tokens = lexer.scanTokens()

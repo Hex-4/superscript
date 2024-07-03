@@ -6,8 +6,8 @@ expose [iterate]
 ? This is also the shortcut that runs when you run via CLI
 
 ? Import integrations
-use [choose, input] from local:gum
-use [run] from github:sspkgs/bash
+use [choose, input] from "local:gum"
+use [run] from "github:sspkgs/bash"
 
 
 define iterate as {
@@ -37,7 +37,7 @@ define groceries as {
 
 ? You can also loop x number of times:
 
-loop 4 {
+loop 42.1 {
     ? ...
 }
 

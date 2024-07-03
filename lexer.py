@@ -1,5 +1,5 @@
 from stdlib import SuperError
-
+from rich import print
 
 
 TOKEN_KINDS = {
@@ -55,7 +55,7 @@ class Token:
         self.col = col
 
     def __repr__(self):
-        return self.value
+        return str(self.value)
 
 class Lexer:
     def __init__(self, program):
@@ -63,16 +63,16 @@ class Lexer:
         self.tokens = []
         self.line = 1
         self.current = 0
-        self.col = 0
+        self.col = 1
 
     def error(self, msg):
         msg = str(self.line) + "|" + str(self.col) + "|" + msg
         raise SuperError(msg)
 
     def scanTokens(self):
-        while self.peek() != "\0":
+        while self.peek() != "\0" or self.peek() != "\x00":
             self.scanToken()
-        self.tokens.append(Token(TOKEN_KINDS["EOF"], "", "", self.line, self.col))
+        self.tokens.append(Token(TOKEN_KINDS["EOF"], "\0", "\0", self.line, self.col))
         return self.tokens
     
     def peek(self):
@@ -80,13 +80,21 @@ class Lexer:
             return "\0"
         return self.program[self.current]
 
+    def peek_next(self):
+        if self.current + 1 >= len(self.program):
+            return "\0"
+        return self.program[self.current + 1]
+
     def advance(self):
         if self.current >= len(self.program):
             return "\0"
         self.current += 1
         self.col += 1
         print(self.current)
-        return self.program[self.current]
+        try:
+            return self.program[self.current]
+        except IndexError:
+            return "\0"
     
 
     def scanToken(self):
@@ -94,14 +102,51 @@ class Lexer:
         def match(char):
             if self.peek() == char: return self.advance()
             else: return False
-        def isnumber(char):
-            return char >= "0" and char <= "9"
-        def ischar(char):
-            return (char >= "a" and char <= "z") or (char >= "A" and char <= "Z") or char == "_"
-        def isalphanumeric(char):
-            return ischar(char) or isnumber(char)
+
+        # Modded helper functions from Arson (easel/languages/arson)
+        def is_alphanumeric(char):
+            return char != " " and (char.isalpha() or char.isnumeric() or char == "_")
+
+        def string(char):
+            text = self.advance()
+            
+            while self.peek() != char and self.peek() != "\0":
+                if self.peek() == "\n":
+                    self.line += 1
+                text += self.advance()
+            if self.peek() == "\0":
+                # Reached end of file, but string hasn't been terminated
+                raise SuperError(f"Unterminated string: {self.line}")
+            self.advance()  # Consume the closing quote
+            text = text[:-1]
+            self.tokens.append(Token(TOKEN_KINDS["String"], text, text, self.line, self.col))
+
+        def number():
+            text = self.peek()
+            while self.peek().isnumeric():
+                text += self.advance()
+            if self.peek() == "." and self.peek_next().isnumeric():
+                text += self.advance()
+                while self.peek().isnumeric():
+                    text += self.advance()
+            text = text[:-1]
+            self.tokens.append(Token(TOKEN_KINDS["Number"], text, float(text), self.line, self.col))
+
+        def identifier():
+            text = self.peek()
+            while is_alphanumeric(self.peek()):
+                text += self.advance()
+            text = text[:-1]
+            kind = KEYWORDS.get(text, None)
+            if kind is None:
+                kind = TOKEN_KINDS["Identifier"]
+            self.current -= 1
+
+            self.tokens.append(Token(kind, text, text, self.line, self.col))
+
 
         c = self.advance()
+        print(self.tokens)
         match(c):
             case "(":
                 self.tokens.append(Token(TOKEN_KINDS["LeftParen"], c, c, self.line, self.col))
@@ -129,14 +174,7 @@ class Lexer:
             case "*":
                 self.tokens.append(Token(TOKEN_KINDS["Star"], c, c, self.line, self.col))
             case "\"":
-                string = []
-                while self.peek() != "\"":
-                    string.append(self.advance())
-                    if self.peek() == "\0":
-                        self.error("Unterminated string. Did you miss a closing quote?")
-                self.advance() # eat the last quote
-                string = "".join(string)
-                self.tokens.append(Token(TOKEN_KINDS["String"], string, string, self.line, self.col))
+                string("\"")
             case "!":
                 if match("="): self.tokens.append(Token(TOKEN_KINDS["BangEqual"], "!=", "!=", self.line, self.col))
             case ">":
@@ -155,26 +193,14 @@ class Lexer:
                 self.line += 1
                 self.col = 0
             case _:
-                if isnumber(c):
-                    number = [c]
-                    while isnumber(self.peek()) or (self.peek == "." and not "." in number):
-                        number.append(self.advance())
-                    number = "".join(number)
-                    self.tokens.append(Token(TOKEN_KINDS["Number"], number, float(number), self.line, self.col))
-                elif ischar(c):
-                    identifier = [c]
-                    while isalphanumeric(self.peek()): identifier.append(self.advance())
-                    identifier = "".join(identifier)
-                    for i in KEYWORDS:
-                        if i in identifier:
-                            self.tokens.append(Token(TOKEN_KINDS["Keyword"], identifier, KEYWORDS[i], self.line, self.col))
-                            return
-                    if identifier == "true" or identifier == "false":
-                        self.tokens.append(Token(TOKEN_KINDS["Boolean"], identifier, identifier == "true", self.line, self.col))
-                    else:
-                        self.tokens.append(Token(TOKEN_KINDS["Identifier"], identifier, identifier, self.line, self.col))
+                if c.isalpha():
+                    identifier()
+                elif c.isnumeric():
+                    number()
+                elif c == "\x00":
+                    return
                 else:
-                    self.error("Unexpected character: " + c)
+                    raise Exception(f"Unexpected character: {c}")
                     
 
 
